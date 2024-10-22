@@ -16,5 +16,6 @@
         public virtual User User { get; set; }  // Navigation property to User
         public virtual Payment Payment { get; set; }  // Navigation property to Payment
         public virtual ICollection<BookingHistory> BookingHistories { get; set; }  // Navigation property to BookingHistories
+        public virtual ICollection<Payment> Payments { get; set; }  // Navigation property
     }
 }

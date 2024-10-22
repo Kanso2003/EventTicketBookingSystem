@@ -49,7 +49,7 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BookingHistories");
+                    b.ToTable("BookingHistories", (string)null);
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.Event", b =>
@@ -83,7 +83,7 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.HasKey("EventId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.EventOrganizer", b =>
@@ -111,7 +111,7 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.HasKey("OrganizerId");
 
-                    b.ToTable("EventOrganizers");
+                    b.ToTable("EventOrganizers", (string)null);
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.Payment", b =>
@@ -154,7 +154,7 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.Ticket", b =>
@@ -194,7 +194,7 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.Transaction", b =>
@@ -218,7 +218,7 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.HasIndex("PaymentId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.User", b =>
@@ -244,6 +244,10 @@ namespace EventTicketBookingSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -253,7 +257,7 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.BookingHistory", b =>

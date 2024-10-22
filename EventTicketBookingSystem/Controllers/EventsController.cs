@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // GET: api/events
+        [Authorize]  
         [HttpGet]
         public async Task<IActionResult> GetEvents()
         {
@@ -29,6 +31,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // GET: api/events/1
+        [Authorize] 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEvent(int id)
         {
@@ -38,6 +41,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // POST: api/events
+        [Authorize(Roles = "Admin")]  // Only "Admin" role can access this
         [HttpPost]
         public async Task<IActionResult> CreateEvent([FromBody] Event newEvent)
         {
@@ -47,6 +51,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // PUT: api/events/1
+        [Authorize(Roles = "Admin")]  // Only "Admin" role can access this
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateEvent(int id, [FromBody] Event updatedEvent)
         {
@@ -65,6 +70,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // DELETE: api/events/1
+        [Authorize(Roles = "Admin")]  // Only "Admin" role can access this
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEvent(int id)
         {

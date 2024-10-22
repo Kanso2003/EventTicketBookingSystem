@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EventTicketBookingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241014172631_InitialCreate")]
+    [Migration("20241017193025_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -244,6 +244,10 @@ namespace EventTicketBookingSystem.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 

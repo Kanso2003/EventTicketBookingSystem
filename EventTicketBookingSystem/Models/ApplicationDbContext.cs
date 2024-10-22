@@ -51,6 +51,11 @@ namespace EventTicketBookingSystem.Models
                 .WithOne(b => b.User)
                 .HasForeignKey(b => b.UserId);
 
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Ticket)
+                .WithMany()  // Ensure this matches your navigation properties
+                .HasForeignKey(p => p.TicketId);  // Explicitly specify the foreign key
+
             // Configuring Ticket and BookingHistory relationship
             modelBuilder.Entity<Ticket>()
                 .HasMany(t => t.BookingHistories)
@@ -64,6 +69,15 @@ namespace EventTicketBookingSystem.Models
             // Configure the primary key for EventOrganizer
             modelBuilder.Entity<EventOrganizer>()
         .HasKey(eo => eo.OrganizerId); // Define the primary key
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            }));
+            optionsBuilder.EnableSensitiveDataLogging(); // Optional: logs sensitive data
+                                                         // Other configurations...
         }
     }
 }

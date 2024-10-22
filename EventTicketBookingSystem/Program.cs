@@ -1,8 +1,13 @@
 using EventTicketBookingSystem.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +20,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // JWT Authentication
 var key = builder.Configuration["Jwt:Key"]; // Your secret key from appsettings
+var issuer = builder.Configuration["Jwt:Issuer"];
+var audience = builder.Configuration["Jwt:Audience"];
+
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -28,8 +36,11 @@ builder.Services.AddAuthentication(x =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-        ValidateIssuer = false,
-        ValidateAudience = false
+        ValidateIssuer = true, // Validate issuer
+        ValidIssuer = issuer,
+        ValidateAudience = true, // Validate audience
+        ValidAudience = audience,
+        ValidateLifetime = true
     };
 });
 
@@ -48,9 +59,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Enable authentication
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

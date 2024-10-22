@@ -9,6 +9,7 @@ namespace EventTicketBookingSystem.Models
         public string Email { get; set; }  // Unique
         public string PasswordHash { get; set; }  // Encrypted Password
         public string PhoneNumber { get; set; }
+        public string Role { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Default to now
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow; // Default to now
 
