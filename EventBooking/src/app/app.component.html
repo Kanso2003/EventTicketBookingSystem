@@ -1,0 +1,165 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <!-- Container wrapper -->
+  <div class="container-fluid">
+    <!-- Toggle button -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-mdb-toggle="collapse"
+      data-mdb-target="#navbarCenteredExample"
+      aria-controls="navbarCenteredExample"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Collapsible wrapper -->
+    <div
+      class="collapse navbar-collapse justify-content-center"
+      id="navbarCenteredExample"
+    >
+      <!-- Left links -->
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Events</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">My Bookings</a>
+        </li>
+      </ul>
+     
+      <!-- Left links -->
+      
+    </div>
+    <div class="d-flex align-items-center">
+      <button   type="button" class="btn btn-success px-3 me-2"(click)="openPopup()">
+        Login
+      </button>
+       
+    </div> 
+    <!-- Collapsible wrapper -->
+  </div>
+  <!-- Container wrapper -->
+</nav>
+<router-outlet />
+
+
+<div class="modal" id="myModal" #model>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">{{ isLoginActive ? 'Login' : 'Register' }}</h4>
+        <button type="button" class="btn-close" (click)="closePopup()"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Login Form -->
+        <form *ngIf="isLoginActive" id="loginFrm">
+          <div class="form-outline mb-4">
+            <input type="email" id="loginEmail" class="form-control form-control-lg"
+              placeholder="Enter a valid email address" />
+          </div>
+          <div class="form-outline mb-3">
+            <input type="password" id="loginPassword" class="form-control form-control-lg"
+              placeholder="Enter password" />
+          </div>
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button type="button" class="btn btn-primary btn-lg">Login</button>
+            <p class="small fw-bold mt-2 pt-1 mb-0">
+              Don't have an account? <a href="#" class="link-danger" (click)="switchToRegister()">Register</a>
+            </p>
+          </div>
+        </form>
+
+
+<!-- Register Form -->
+<form *ngIf="!isLoginActive" [formGroup]="phoneForm" (ngSubmit)="register()" id="registerFrm">
+   <!--Email -->
+  <div class="form-outline mb-4">
+    <input
+      type="email"
+      formControlName="email"
+      id="registerEmail"
+      class="form-control form-control-lg"
+      placeholder="Enter email"
+    />
+    <small class="text-danger" *ngIf="phoneForm.get('email')?.invalid && phoneForm.get('email')?.touched">
+      Invalid email address! Please enter a valid email (e.g., example&#64;gmail.com or example&#64;outlook.com).
+    </small>
+    <small class="text-danger" *ngIf="phoneForm.get('email')?.errors?.['invalidDomain'] && phoneForm.get('email')?.touched">
+      Email must end with &#64;gmail.com or a valid Microsoft domain (e.g., &#64;outlook.com, &#64;hotmail.com, &#64;net.usj.edu.lb).
+    </small>
+  </div>
+
+  <!--Phone -->
+  <div class="form-outline mb-4">
+    <select formControlName="countryCode" class="form-control">
+      <option value="+1">US (+1)</option>
+      <option value="+44">UK (+44)</option>
+      <option value="+33">France (+33)</option>
+      <option value="+49">Germany (+49)</option>
+      <option value="+961">Lebanon (+961)</option>
+    </select>
+    
+    <input
+      type="tel"
+      formControlName="phone"
+      class="form-control"
+      placeholder="Enter phone number"
+      pattern="[0-9]*"
+      inputmode="numeric"
+    />
+    
+    <small class="text-danger" *ngIf="phoneForm.get('phone')?.invalid && phoneForm.get('phone')?.touched">
+      Invalid phone number!
+    </small>
+  </div>
+
+    <!--Username -->
+  <div class="form-outline mb-4">
+    <input
+      type="text"
+      formControlName="username"
+      id="registerUserName"
+      class="form-control form-control-lg"
+      placeholder="Enter User Name"
+    />
+    <small class="text-danger" *ngIf="phoneForm.get('username')?.invalid && phoneForm.get('username')?.touched">
+      Username cannot be empty, or countain special characters like '!', and should be atleast 3 characters long
+    </small>
+  </div>
+
+    <!--Password -->
+  <div class="form-outline mb-4">
+    <input
+      type="password"
+      formControlName="password"
+      id="registerPassword"
+      class="form-control form-control-lg"
+      placeholder="Enter password"
+    />
+    <small class="text-danger" *ngIf="phoneForm.get('password')?.invalid && phoneForm.get('password')?.touched">
+      Password must be at least 8 characters long and contain a mix of uppercase, lowercase, numbers, and symbols.
+    </small>
+  </div>
+
+  <div class="text-center text-lg-start mt-4 pt-2">
+    <button type="button" class="btn btn-primary" (click)="register()">Register</button>
+    <p class="small fw-bold mt-2 pt-1 mb-0">
+      Already have an account? <a href="#" class="link-danger" (click)="switchToLogin()">Login</a>
+    </p>
+  </div>
+</form>
+
+<!-- Modal Footer -->
+<div class="modal-footer">
+  <button type="button" class="btn btn-danger" (click)="closePopup()">Close</button>
+</div>
+

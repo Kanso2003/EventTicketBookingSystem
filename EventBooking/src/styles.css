@@ -1,0 +1,39 @@
+
+.bg-light  {
+    background-color: #000000 !important;
+   
+   }
+   .btn {
+    background-color: #83175b !important;
+   }
+   .nav-link {
+    color: #ffff !important;
+    font-weight: 700;
+    font-size: 1.2rem;
+   }
+   p {
+    font-size: 0.8rem;
+   }
+
+   .card-body {
+    background-color: #6c738f !important;
+    color: white !important;
+   }
+    .book-div {
+        padding: 80px 0;
+    }
+
+     .card-img-top {
+        height: 180px !important;
+     }
+     .modal .modal-dialog {
+    position: absolute;
+    width: 100%;
+    right: 10px;
+    bottom: 10px;
+    margin: 0;
+}
+     .modal .modal-dialog  {
+    top: 10px;
+    right: 10px;
+}
