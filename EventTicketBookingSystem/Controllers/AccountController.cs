@@ -43,7 +43,7 @@ namespace EventTicketBookingSystem.Controllers
             return Ok("User registered successfully");
         }
 
-        // LOGIN: Authenticate and generate JWT
+        // LOGIN: Authenticate and generate JWT (supports login by username or email)
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
@@ -53,19 +53,20 @@ namespace EventTicketBookingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            var storedUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginRequest.Username);
+            // Check if loginRequest.Username can be an email or a username
+            var storedUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginRequest.Username || u.Email == loginRequest.Username || u.PhoneNumber == loginRequest.Username);
             if (storedUser == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, storedUser.PasswordHash))
             {
-                return Unauthorized("Invalid username or password");
+                return Unauthorized("Invalid username/email or password");
             }
 
             // Token generation logic
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, storedUser.Email),
-            new Claim(ClaimTypes.Role, storedUser.Role),  // Assign the role
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, storedUser.Email),
+                new Claim(ClaimTypes.Role, storedUser.Role),  // Assign the role
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -80,5 +81,4 @@ namespace EventTicketBookingSystem.Controllers
             return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
     }
-
 }

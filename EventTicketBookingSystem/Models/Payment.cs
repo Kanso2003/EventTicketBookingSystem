@@ -10,6 +10,10 @@
         public string PaymentStatus { get; set; }  // e.g., 'successful', 'failed', 'pending'
         public DateTime TransactionDate { get; set; } = DateTime.UtcNow; // Default to now
 
+        // Stripe-specific fields
+        public string PaymentIntentId { get; set; }  // Stripe Payment Intent ID
+        public string StripePaymentId { get; set; }  // Stripe Payment ID (for tracking)
+
         // Navigation Properties
         public virtual Ticket Ticket { get; set; }  // Navigation property to Ticket
         public virtual User User { get; set; }  // Navigation property to User
