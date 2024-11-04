@@ -21,6 +21,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // GET: api/user/{id} - Read user details
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
@@ -33,6 +34,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // PUT: api/user/{id} - Update user information
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedUser)
         {
@@ -74,6 +76,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // DELETE: api/user/{id} - Delete user profile
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {

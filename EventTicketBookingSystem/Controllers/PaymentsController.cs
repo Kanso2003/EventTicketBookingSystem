@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EventTicketBookingSystem.Models;
+using Stripe;
+using Stripe.Checkout;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Stripe;
-using Stripe.Checkout; // Add Stripe Checkout for session creation
 
 namespace EventTicketBookingSystem.Controllers
 {
@@ -19,125 +19,124 @@ namespace EventTicketBookingSystem.Controllers
         {
             _context = context;
             _configuration = configuration;
+            StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
         }
 
-        // Create Payment with Stripe
-        [HttpPost]
-        public async Task<ActionResult<Payment>> CreatePayment([FromBody] Payment payment)
+        // Create Payment and Initialize Stripe Checkout Session
+        [HttpPost("checkout-session")]
+        public async Task<IActionResult> CreatePayment([FromBody] Payment payment)
         {
-            // Validate TicketId and UserId
-            if (!await _context.Tickets.AnyAsync(t => t.TicketId == payment.TicketId))
+            var ticket = await _context.Tickets.FindAsync(payment.TicketId);
+            var existingPayment = await _context.Payments
+             .Where(p => p.TicketId == payment.TicketId && p.UserId == payment.UserId && p.PaymentStatus == "Pending")
+             .FirstOrDefaultAsync();
+
+            if (existingPayment != null)
             {
-                return BadRequest("Invalid Ticket ID");
+                return BadRequest("A pending payment already exists for this ticket and user.");
             }
 
-            if (!await _context.Users.AnyAsync(u => u.UserId == payment.UserId))
+            if (ticket == null)
             {
-                return BadRequest("Invalid User ID");
+                return BadRequest("Invalid Ticket ID or Ticket not found");
             }
 
-            // Stripe payment processing
-            var options = new PaymentIntentCreateOptions
+            var user = await _context.Users.FindAsync(payment.UserId);
+            if (user == null)
             {
-                Amount = (long)(payment.Amount * 100), // Stripe uses cents, so multiply by 100
-                Currency = "usd", // You can change the currency as needed
+                return BadRequest("Invalid User ID or User not found");
+            }
+
+
+            // Customize the description with event and ticket details
+            var description = $"The Weekend Event - Ticket #{ticket.TicketId}";
+
+            var options = new SessionCreateOptions
+            {
                 PaymentMethodTypes = new List<string> { "card" },
-                Metadata = new Dictionary<string, string>
+                LineItems = new List<SessionLineItemOptions>
                 {
-                    { "UserId", payment.UserId.ToString() },
-                    { "TicketId", payment.TicketId.ToString() }
-                }
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            Currency = "usd",
+                            UnitAmount = (long)(ticket.Price * 100),
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = ticket.TicketType + " Ticket",
+                                Description = description,
+                            },
+                        },
+                        Quantity = 1,
+                    },
+                },
+                Mode = "payment",
+                SuccessUrl = $"{_configuration["Stripe:SuccessUrl"]}?session_id={{CHECKOUT_SESSION_ID}}",
+                CancelUrl = _configuration["Stripe:CancelUrl"],
             };
 
-            var service = new PaymentIntentService();
-            PaymentIntent paymentIntent;
+            var service = new SessionService();
+            Session session = await service.CreateAsync(options);
 
-            try
-            {
-                paymentIntent = service.Create(options);
-            }
-            catch (StripeException e)
-            {
-                return BadRequest(new { error = e.Message });
-            }
-
-            // Save payment info to the database after successful payment intent creation
-            payment.PaymentIntentId = paymentIntent.Id; // Store Stripe's payment intent ID
+            payment.PaymentStatus = "Pending";
+            payment.Amount = ticket.Price;
+            payment.PaymentIntentId = session.Id;
             _context.Payments.Add(payment);
+            ticket.Status = "Not Available";  // Update ticket status immediately
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetPayment), new { id = payment.PaymentId }, payment);
+            return Ok(new { SessionUrl = session.Url });
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Payment>> GetPayment(int id)
+        [HttpGet("payment-success")]
+        public async Task<IActionResult> PaymentSuccess(string session_id)
         {
-            var payment = await _context.Payments
-                .Include(p => p.Ticket) // Include Ticket
-                .Include(p => p.User)   // Include User
-                .FirstOrDefaultAsync(p => p.PaymentId == id);
-
+            var payment = await _context.Payments.FirstOrDefaultAsync(p => p.PaymentIntentId == session_id);
             if (payment == null)
             {
-                return NotFound();
+                return NotFound("Payment record not found.");
             }
 
-            return payment;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Payment>>> GetPayments()
-        {
-            return await _context.Payments
-                .Include(p => p.Ticket) // Include Ticket
-                .Include(p => p.User)   // Include User
-                .ToListAsync();
-        }
-
-        // Update Payment
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePayment(int id, Payment payment)
-        {
-            if (id != payment.PaymentId)
+            payment.PaymentStatus = "Successful";
+            var ticket = await _context.Tickets.FindAsync(payment.TicketId);
+            if (ticket != null)
             {
-                return BadRequest();
+                ticket.Status = "Not Available";
             }
 
-            _context.Entry(payment).State = EntityState.Modified;
-
-            try
+            var bookingHistory = new BookingHistory
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PaymentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                UserId = payment.UserId,
+                TicketId = payment.TicketId,
+                BookingDate = DateTime.UtcNow,
+                Status = "Successful"
+            };
 
-            return NoContent();
-        }
-
-        // Delete Payment
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePayment(int id)
-        {
-            var payment = await _context.Payments.FindAsync(id);
-            if (payment == null)
-            {
-                return NotFound();
-            }
-
-            _context.Payments.Remove(payment);
+            _context.BookingHistories.Add(bookingHistory);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Payment was successful! Thank you for your purchase.");
+        }
+
+        [HttpGet("payment-cancel")]
+        public async Task<IActionResult> PaymentCancel(string session_id)
+        {
+            var payment = await _context.Payments.FirstOrDefaultAsync(p => p.PaymentIntentId == session_id);
+            if (payment == null)
+            {
+                return NotFound("Payment record not found.");
+            }
+
+            payment.PaymentStatus = "Canceled";
+            var ticket = await _context.Tickets.FindAsync(payment.TicketId);
+            if (ticket != null)
+            {
+                ticket.Status = "Available";  // Reset ticket status if canceled
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok("Payment was canceled. You have not been charged.");
         }
 
         private bool PaymentExists(int id)

@@ -23,6 +23,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // POST: api/Tickets
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateTicket([FromBody] Ticket ticket)
         {
@@ -63,6 +64,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // PUT: api/Tickets/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTicket(int id, [FromBody] Ticket ticket)
         {
@@ -93,6 +95,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // DELETE: api/Tickets/{id}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {

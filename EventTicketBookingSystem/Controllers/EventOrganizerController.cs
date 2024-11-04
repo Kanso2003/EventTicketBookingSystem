@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace EventTicketBookingSystem.Controllers
@@ -21,6 +22,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // Create organizer profile
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateOrganizer([FromBody] EventOrganizer organizer)
         {
@@ -50,6 +52,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // Update organizer information
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrganizer(int id, [FromBody] EventOrganizer organizer)
         {
@@ -74,6 +77,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // Delete organizer profile
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrganizer(int id)
         {

@@ -1,5 +1,6 @@
 ﻿using EventTicketBookingSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace EventTicketBookingSystem.Models
 {
@@ -15,69 +16,58 @@ namespace EventTicketBookingSystem.Models
         public DbSet<Payment> Payments { get; set; }
         public DbSet<BookingHistory> BookingHistories { get; set; }
         public DbSet<EventOrganizer> EventOrganizers { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // Configuring User and Ticket relationship
+        {// User and Ticket relationship
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Tickets)
                 .WithOne(t => t.User)
                 .HasForeignKey(t => t.UserId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.SetNull); // Adjust as needed for your deletion policy.
 
-            // Configuring Event and Ticket relationship
+            // Event and Ticket relationship
             modelBuilder.Entity<Event>()
                 .HasMany(e => e.Tickets)
                 .WithOne(t => t.Event)
                 .HasForeignKey(t => t.EventId);
 
-            // Configuring Ticket and Payment relationship
+            // Configuring the one-to-many relationship between Ticket and Payment
             modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Payment)
-                .WithOne()
-                .HasForeignKey<Payment>(p => p.TicketId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(t => t.Payments)
+                .WithOne(p => p.Ticket)
+                .HasForeignKey(p => p.TicketId);
 
-            // Configuring User and Payment relationship
+            // User and Payment relationship
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Payments)
                 .WithOne(p => p.User)
                 .HasForeignKey(p => p.UserId);
 
-            // Configuring User and BookingHistory relationship
+            // User and BookingHistory relationship
             modelBuilder.Entity<User>()
                 .HasMany(u => u.BookingHistories)
                 .WithOne(b => b.User)
                 .HasForeignKey(b => b.UserId);
 
-            modelBuilder.Entity<Payment>()
-                .HasOne(p => p.Ticket)
-                .WithMany()  // Ensure this matches your navigation properties
-                .HasForeignKey(p => p.TicketId);  // Explicitly specify the foreign key
+            // Primary key configurations
+            modelBuilder.Entity<BookingHistory>().HasKey(b => b.BookingId);
+            modelBuilder.Entity<EventOrganizer>().HasKey(eo => eo.OrganizerId);
 
-            // Configuring Ticket and BookingHistory relationship
-            modelBuilder.Entity<Ticket>()
-                .HasMany(t => t.BookingHistories)
-                .WithOne(b => b.Ticket)
-                .HasForeignKey(b => b.TicketId);
+            // Event and EventOrganizer foreign key relationship
+            // Keeps OrganizerId as foreign key without navigation property if needed
+            modelBuilder.Entity<Event>()
+                .HasOne<EventOrganizer>()
+                .WithMany()
+                .HasForeignKey(e => e.OrganizerId)
+                .OnDelete(DeleteBehavior.Restrict); // No cascade delete.
 
-            // Configure the primary key for BookingHistory
-            modelBuilder.Entity<BookingHistory>()
-                .HasKey(b => b.BookingId); // Define the primary key
-
-            // Configure the primary key for EventOrganizer
-            modelBuilder.Entity<EventOrganizer>()
-        .HasKey(eo => eo.OrganizerId); // Define the primary key
+            base.OnModelCreating(modelBuilder);
         }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder =>
-            {
-                builder.AddConsole();
-            }));
-            optionsBuilder.EnableSensitiveDataLogging(); // Optional: logs sensitive data
-                                                         // Other configurations...
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            optionsBuilder.EnableSensitiveDataLogging(); // Turn off in production for security reasons.
         }
     }
 }

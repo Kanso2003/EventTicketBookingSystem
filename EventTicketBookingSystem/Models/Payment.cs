@@ -1,21 +1,22 @@
-﻿namespace EventTicketBookingSystem.Models
+﻿using EventTicketBookingSystem.Models;
+using System.Text.Json.Serialization;
+
+public class Payment
 {
-    public class Payment
-    {
-        public int PaymentId { get; set; }  // Primary Key
-        public int TicketId { get; set; }  // Foreign Key to Ticket
-        public int UserId { get; set; }  // Foreign Key to User
-        public decimal Amount { get; set; }
-        public string PaymentMethod { get; set; }  // e.g., 'credit_card', 'paypal'
-        public string PaymentStatus { get; set; }  // e.g., 'successful', 'failed', 'pending'
-        public DateTime TransactionDate { get; set; } = DateTime.UtcNow; // Default to now
+    public int PaymentId { get; set; }
+    public int TicketId { get; set; }
+    public int UserId { get; set; }
+    public decimal Amount { get; set; }
+    public string PaymentMethod { get; set; }
+    public string PaymentStatus { get; set; }
+    public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
 
-        // Stripe-specific fields
-        public string PaymentIntentId { get; set; }  // Stripe Payment Intent ID
-        public string StripePaymentId { get; set; }  // Stripe Payment ID (for tracking)
+    public string PaymentIntentId { get; set; }
+    public string StripePaymentId { get; set; }
 
-        // Navigation Properties
-        public virtual Ticket Ticket { get; set; }  // Navigation property to Ticket
-        public virtual User User { get; set; }  // Navigation property to User
-    }
+    [JsonIgnore]  // Ignore these properties during JSON deserialization
+    public virtual Ticket? Ticket { get; set; }
+
+    [JsonIgnore]
+    public virtual User? User { get; set; }
 }

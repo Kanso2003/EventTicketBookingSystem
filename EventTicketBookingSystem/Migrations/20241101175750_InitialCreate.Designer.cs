@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EventTicketBookingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241017193025_InitialCreate")]
+    [Migration("20241101175750_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,6 +24,73 @@ namespace EventTicketBookingSystem.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Event", b =>
+                {
+                    b.Property<int>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EventId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrganizerId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("EventId");
+
+                    b.HasIndex("OrganizerId");
+
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("EventOrganizer", b =>
+                {
+                    b.Property<int>("OrganizerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrganizerId"));
+
+                    b.Property<string>("ContactEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OrganizerName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("OrganizerId");
+
+                    b.ToTable("EventOrganizers");
+                });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.BookingHistory", b =>
                 {
@@ -53,111 +120,6 @@ namespace EventTicketBookingSystem.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("BookingHistories");
-                });
-
-            modelBuilder.Entity("EventTicketBookingSystem.Models.Event", b =>
-                {
-                    b.Property<int>("EventId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EventId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("EventDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EventDescription")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("EventName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("EventId");
-
-                    b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("EventTicketBookingSystem.Models.EventOrganizer", b =>
-                {
-                    b.Property<int>("OrganizerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrganizerId"));
-
-                    b.Property<string>("ContactEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("OrganizerName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("OrganizerId");
-
-                    b.ToTable("EventOrganizers");
-                });
-
-            modelBuilder.Entity("EventTicketBookingSystem.Models.Payment", b =>
-                {
-                    b.Property<int>("PaymentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PaymentId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TicketId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TicketId1")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("PaymentId");
-
-                    b.HasIndex("TicketId")
-                        .IsUnique();
-
-                    b.HasIndex("TicketId1");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.Ticket", b =>
@@ -200,30 +162,6 @@ namespace EventTicketBookingSystem.Migrations
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("EventTicketBookingSystem.Models.Transaction", b =>
-                {
-                    b.Property<int>("TransactionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TransactionId"));
-
-                    b.Property<int>("PaymentId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TransactionAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("TransactionId");
-
-                    b.HasIndex("PaymentId");
-
-                    b.ToTable("Transactions");
-                });
-
             modelBuilder.Entity("EventTicketBookingSystem.Models.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -263,6 +201,68 @@ namespace EventTicketBookingSystem.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Payment", b =>
+                {
+                    b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PaymentId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("PaymentIntentId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StripePaymentId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TicketId1")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("TicketId1")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("Event", b =>
+                {
+                    b.HasOne("EventOrganizer", "Organizer")
+                        .WithMany("Events")
+                        .HasForeignKey("OrganizerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organizer");
+                });
+
             modelBuilder.Entity("EventTicketBookingSystem.Models.BookingHistory", b =>
                 {
                     b.HasOne("EventTicketBookingSystem.Models.Ticket", "Ticket")
@@ -282,34 +282,9 @@ namespace EventTicketBookingSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("EventTicketBookingSystem.Models.Payment", b =>
-                {
-                    b.HasOne("EventTicketBookingSystem.Models.Ticket", null)
-                        .WithOne("Payment")
-                        .HasForeignKey("EventTicketBookingSystem.Models.Payment", "TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EventTicketBookingSystem.Models.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EventTicketBookingSystem.Models.User", "User")
-                        .WithMany("Payments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ticket");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("EventTicketBookingSystem.Models.Ticket", b =>
                 {
-                    b.HasOne("EventTicketBookingSystem.Models.Event", "Event")
+                    b.HasOne("Event", "Event")
                         .WithMany("Tickets")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -325,20 +300,37 @@ namespace EventTicketBookingSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("EventTicketBookingSystem.Models.Transaction", b =>
+            modelBuilder.Entity("Payment", b =>
                 {
-                    b.HasOne("EventTicketBookingSystem.Models.Payment", "Payment")
-                        .WithMany()
-                        .HasForeignKey("PaymentId")
+                    b.HasOne("EventTicketBookingSystem.Models.Ticket", "Ticket")
+                        .WithMany("Payments")
+                        .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Payment");
+                    b.HasOne("EventTicketBookingSystem.Models.Ticket", null)
+                        .WithOne("Payment")
+                        .HasForeignKey("Payment", "TicketId1");
+
+                    b.HasOne("EventTicketBookingSystem.Models.User", "User")
+                        .WithMany("Payments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("EventTicketBookingSystem.Models.Event", b =>
+            modelBuilder.Entity("Event", b =>
                 {
                     b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("EventOrganizer", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.Ticket", b =>
@@ -347,6 +339,8 @@ namespace EventTicketBookingSystem.Migrations
 
                     b.Navigation("Payment")
                         .IsRequired();
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("EventTicketBookingSystem.Models.User", b =>

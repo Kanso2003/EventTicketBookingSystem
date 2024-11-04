@@ -22,6 +22,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // POST: api/BookingHistory (Create Booking Entry)
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateBooking(BookingHistory bookingHistory)
         {
@@ -35,6 +36,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // GET: api/BookingHistory/user/{userId} (Read User's Booking History)
+        [Authorize(Roles = "Admin")]
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetUserBookingHistory(int userId)
         {
@@ -49,6 +51,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // PUT: api/BookingHistory/{id} (Update Booking Status)
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBookingStatus(int id, [FromBody] string status)
         {
@@ -71,6 +74,7 @@ namespace EventTicketBookingSystem.Controllers
         }
 
         // DELETE: api/BookingHistory/{id} (Delete Booking)
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBooking(int id)
         {

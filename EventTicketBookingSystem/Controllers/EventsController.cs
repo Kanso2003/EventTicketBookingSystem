@@ -43,11 +43,24 @@ namespace EventTicketBookingSystem.Controllers
         // POST: api/events
         [Authorize(Roles = "Admin")]  // Only "Admin" role can access this
         [HttpPost]
-        public async Task<IActionResult> CreateEvent([FromBody] Event newEvent)
+        public async Task<IActionResult> CreateEvent([FromBody] Event eventInput)
         {
-            _context.Events.Add(newEvent);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Check if Organizer exists
+            var organizerExists = await _context.EventOrganizers.AnyAsync(o => o.OrganizerId == eventInput.OrganizerId);
+            if (!organizerExists)
+            {
+                return BadRequest("Organizer not found");
+            }
+
+            _context.Events.Add(eventInput);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetEvent), new { id = newEvent.EventId }, newEvent);
+
+            return CreatedAtAction(nameof(GetEvent), new { id = eventInput.EventId }, eventInput);
         }
 
         // PUT: api/events/1
